@@ -1,7 +1,8 @@
+import { Select } from "@radix-ui/themes";
+import { Plus, Save, Share2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Toggle } from "./ui/toggle";
-import { Plus, Share2, Save, Star, MoreHorizontal } from "lucide-react";
 
 export function WorkflowHeader() {
   return (
@@ -15,9 +16,6 @@ export function WorkflowHeader() {
           placeholder="My workflow"
           defaultValue="My workflow"
         />
-        <Button variant="ghost" size="sm" className="text-zinc-400 h-8">
-          + Add tag
-        </Button>
       </div>
       <div className="flex items-center gap-2">
         <Toggle
@@ -34,13 +32,21 @@ export function WorkflowHeader() {
           <Save className="mr-2 h-4 w-4" />
           Save
         </Button>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <Star className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
+
+        <ChooseNetwork />
       </div>
     </div>
+  );
+}
+
+function ChooseNetwork() {
+  return (
+    <Select.Root defaultValue="TESTNET">
+      <Select.Trigger />
+      <Select.Content position="popper">
+        <Select.Item value="TESTNET">TestNet</Select.Item>
+        <Select.Item value="MAINNET">MainNet</Select.Item>
+      </Select.Content>
+    </Select.Root>
   );
 }
