@@ -31,49 +31,50 @@ interface TriggerOption {
 const triggerOptions: TriggerOption[] = [
   {
     icon: MousePointer2,
-    title: "Trigger manually",
+    title: "Create Smart Contract",
     description:
-      "Runs the flow on clicking a button in n8n. Good for getting started quickly",
+      "Deploy a new smart contract to the blockchain with customizable parameters",
   },
   {
     icon: AppWindow,
-    title: "On app event",
+    title: "Asset Management",
     description:
-      "Runs the flow when something happens in an app like Telegram, Notion or Airtable",
+      "Handle asset creation, transfer, opt-in, and opt-out operations",
     hasSubmenu: true,
   },
   {
     icon: Clock,
-    title: "On a schedule",
-    description: "Runs the flow every day, hour, or custom interval",
+    title: "Time-locked Operations",
+    description: "Schedule contract operations with time-based conditions",
   },
   {
     icon: Webhook,
-    title: "On webhook call",
-    description: "Runs the flow on receiving an HTTP request",
+    title: "Contract Interactions",
+    description: "Execute specific contract methods and handle state changes",
   },
   {
     icon: FormInput,
-    title: "On form submission",
+    title: "Contract Parameters",
     description:
-      "Generate webforms in n8n and pass their responses to the workflow",
+      "Configure and modify contract parameters, state variables, and access controls",
   },
   {
     icon: GitFork,
-    title: "When called by another workflow",
+    title: "Multi-signature Operations",
     description:
-      "Runs the flow when called by the Execute Workflow node from a different workflow",
+      "Handle multi-party transactions and approval workflows for contract operations",
   },
   {
     icon: MessageSquare,
-    title: "On chat message",
+    title: "Event Monitoring",
     description:
-      "Runs the flow when a user sends a chat message. For use with AI nodes",
+      "Track and respond to contract events, state changes, and transaction confirmations",
   },
   {
     icon: MoreHorizontal,
-    title: "Other ways...",
-    description: "Runs the flow on workflow errors, file changes, etc.",
+    title: "Advanced Operations",
+    description:
+      "Handle upgrades, emergency stops, and complex contract interactions",
     hasSubmenu: true,
   },
 ];

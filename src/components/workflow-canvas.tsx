@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ReactNode } from "@tanstack/react-router";
-import { AlertTriangle, Link, Plus, Send, Trash2, Webhook } from "lucide-react";
-import { useCallback, useEffect } from "react";
+import { AlertTriangle, ChevronRight, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import ReactFlow, {
   Background,
   type Connection,
@@ -16,8 +16,10 @@ import ReactFlow, {
   useReactFlow,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import { WorkflowJsonView } from "./workflow-json-view";
+import { generateTealishCode } from "./workflow/tealish-generator";
+import { nodeOptions } from "./workflow/tealish-nodes";
 import { WorkflowNode } from "./workflow/workflow-node";
+import { WorkflowSidebar } from "./workflow/workflow-sidebar";
 
 const nodeTypes = {
   workflow: WorkflowNode,
@@ -29,9 +31,11 @@ const initialNodes: Node[] = [
     type: "workflow",
     position: { x: 250, y: 200 },
     data: {
-      label: "Webhook",
-      icon: Webhook,
-      isWebhook: true,
+      label: nodeOptions[0].label,
+      icon: nodeOptions[0].icon,
+      type: nodeOptions[0].type,
+      code: nodeOptions[0].defaultCode,
+      isWebhook: false,
     },
   },
   {
@@ -39,8 +43,10 @@ const initialNodes: Node[] = [
     type: "workflow",
     position: { x: 450, y: 200 },
     data: {
-      label: "Create URL string",
-      icon: Link,
+      label: nodeOptions[1].label,
+      icon: nodeOptions[1].icon,
+      type: nodeOptions[1].type,
+      code: nodeOptions[1].defaultCode,
     },
   },
   {
@@ -48,8 +54,10 @@ const initialNodes: Node[] = [
     type: "workflow",
     position: { x: 650, y: 200 },
     data: {
-      label: "Respond to Webhook",
-      icon: Send,
+      label: nodeOptions[4].label,
+      icon: nodeOptions[4].icon,
+      type: nodeOptions[4].type,
+      code: nodeOptions[4].defaultCode,
     },
   },
 ];
@@ -69,16 +77,12 @@ const initialEdges: Edge[] = [
   },
 ];
 
-const nodeOptions = [
-  { type: "webhook", label: "Webhook", icon: Webhook },
-  { type: "url", label: "Create URL", icon: Link },
-  { type: "response", label: "Response", icon: Send },
-];
-
 export function WorkflowCanvas() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const { project } = useReactFlow();
+  const [generatedCode, setGeneratedCode] = useState("");
+  const [isJsonPaneOpen, setIsJsonPaneOpen] = useState(true);
 
   const onConnect = useCallback(
     (params: Connection) =>
@@ -86,24 +90,6 @@ export function WorkflowCanvas() {
         addEdge({ ...params, markerEnd: { type: MarkerType.ArrowClosed } }, eds)
       ),
     [setEdges]
-  );
-
-  const addNode = useCallback(
-    (type: string, label: string, icon: ReactNode) => {
-      const position = project({ x: 100, y: 100 });
-      const newNode: Node = {
-        id: `node-${nodes.length + 1}`,
-        type: "workflow",
-        position,
-        data: {
-          label,
-          icon,
-          isWebhook: type === "webhook",
-        },
-      };
-      setNodes((nds) => [...nds, newNode]);
-    },
-    [nodes.length, project, setNodes]
   );
 
   const deleteSelectedNodes = useCallback(() => {
@@ -138,25 +124,59 @@ export function WorkflowCanvas() {
     };
   }, [onKeyDown]);
 
-  return (
-    <div className="flex flex-1 overflow-auto">
-      <div className="relative flex-1 bg-zinc-900">
-        <div className="absolute left-4 top-4 z-10 flex gap-2">
-          {nodeOptions.map((option) => (
-            <Button
-              key={option.type}
-              size="sm"
-              variant="ghost"
-              className="h-8 gap-2 bg-zinc-900/50 text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100"
-              onClick={() => addNode(option.type, option.label, option.icon)}
-            >
-              <Plus className="h-4 w-4" />
-              <option.icon className="h-4 w-4" />
-              {option.label}
-            </Button>
-          ))}
-        </div>
+  // Add this effect to update code when nodes or edges change
+  useEffect(() => {
+    const code = generateTealishCode(nodes, edges);
+    setGeneratedCode(code);
+  }, [nodes, edges]);
 
+  const onDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  }, []);
+
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+
+      const reactFlowBounds = document
+        .querySelector(".react-flow-wrapper")
+        ?.getBoundingClientRect();
+      const data = JSON.parse(
+        event.dataTransfer.getData("application/reactflow")
+      );
+
+      if (!reactFlowBounds) return;
+
+      const position = project({
+        x: event.clientX - reactFlowBounds.left,
+        y: event.clientY - reactFlowBounds.top,
+      });
+
+      // Updated node creation to properly handle icon
+      const newNode = {
+        id: `node-${nodes.length + 1}`,
+        type: "workflow",
+        position,
+        data: {
+          label: data.data.label,
+          icon: data.data.icon,
+          type: data.data.type,
+          code: data.data.code,
+          isWebhook: data.data.isWebhook || false, // Add isWebhook support
+        },
+      };
+
+      setNodes((nds) => [...nds, newNode]);
+    },
+    [project, nodes.length, setNodes]
+  );
+
+  return (
+    <div className="flex flex-1 overflow-hidden">
+      <WorkflowSidebar />
+
+      <div className="relative flex-1 bg-zinc-900">
         <div className="absolute right-4 top-4 z-10 flex gap-2">
           <Button
             size="sm"
@@ -184,6 +204,8 @@ export function WorkflowCanvas() {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           nodeTypes={nodeTypes}
+          onDragOver={onDragOver}
+          onDrop={onDrop}
           defaultViewport={{ x: 0, y: 0, zoom: 1 }}
           minZoom={0.2}
           maxZoom={4}
@@ -191,8 +213,10 @@ export function WorkflowCanvas() {
           snapToGrid
           snapGrid={[20, 20]}
           connectionLineType={ConnectionLineType.SmoothStep}
+          className="react-flow-wrapper"
         >
-          <Background color="rgb(82 82 82 / 0.25)" size={24} gap={24} />
+          <Background color="rgb(82 82 82 / 0.25)" size={2} gap={10} />
+
           <Controls
             className="!bottom-4 !left-4 !top-auto"
             showInteractive={false}
@@ -200,8 +224,31 @@ export function WorkflowCanvas() {
         </ReactFlow>
       </div>
 
-      <div className="w-[500px] border-l border-zinc-800 flex flex-col overflow-auto">
-        <WorkflowJsonView nodes={nodes} edges={edges} />
+      <div
+        className={`border-l border-zinc-800 flex flex-col overflow-auto transition-all duration-300 ${
+          isJsonPaneOpen ? "w-[500px]" : "w-[30px]"
+        }`}
+      >
+        <button
+          onClick={() => setIsJsonPaneOpen(!isJsonPaneOpen)}
+          className="p-2 hover:bg-zinc-800 transition-colors"
+        >
+          <ChevronRight
+            className={`h-4 w-4 transition-transform ${
+              isJsonPaneOpen ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+        {isJsonPaneOpen && (
+          <div className="p-4">
+            <h3 className="text-sm font-medium text-zinc-400 mb-2">
+              Generated Tealish Code
+            </h3>
+            <pre className="bg-zinc-900 p-4 rounded-md text-sm font-mono text-zinc-100 overflow-auto">
+              {generatedCode}
+            </pre>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -11,7 +11,7 @@ export default function Dashboard() {
       <TrialBanner />
       <div className="flex flex-1 overflow-hidden">
         <SidebarProvider>
-          <WorkflowSidebar />
+          {/* <WorkflowSidebar /> */}
           <TriggerSidebarProvider>
             <main className="flex-1 flex flex-col overflow-hidden">
               <WorkflowHeader />
