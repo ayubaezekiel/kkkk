@@ -3,7 +3,6 @@ import { TrialBanner } from "./trial-banner";
 import { TriggerSidebarProvider } from "./trigger-sidebar-context";
 import { WorkflowCanvas } from "./workflow-canvas";
 import { WorkflowHeader } from "./workflow-header";
-import { WorkflowSidebar } from "./workflow-sidebar";
 
 export default function Dashboard() {
   return (
@@ -11,7 +10,6 @@ export default function Dashboard() {
       <TrialBanner />
       <div className="flex flex-1 overflow-hidden">
         <SidebarProvider>
-          {/* <WorkflowSidebar /> */}
           <TriggerSidebarProvider>
             <main className="flex-1 flex flex-col overflow-hidden">
               <WorkflowHeader />

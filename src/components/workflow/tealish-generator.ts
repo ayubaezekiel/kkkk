@@ -23,7 +23,18 @@ contract WorkflowContract {
 
   // Generate state variables first
   const stateVariables = nodes.filter(
-    (node) => node.data.type === TEALISH_NODE_TYPES.STATE_VARIABLE
+    (node) =>
+      node.data.type ===
+      (TEALISH_NODE_TYPES.STATE_VARIABLE as
+        | "STATE_VARIABLE"
+        | "METHOD"
+        | "CONDITION"
+        | "LOOP"
+        | "OPERATION"
+        | "ASSET_TRANSFER"
+        | "CONTRACT_CALL"
+        | "PAYMENT"
+        | "CONFIGURATION")
   );
 
   if (stateVariables.length > 0) {
@@ -35,7 +46,18 @@ contract WorkflowContract {
 
   // Generate methods and their implementation
   const methods = nodes.filter(
-    (node) => node.data.type === TEALISH_NODE_TYPES.METHOD
+    (node) =>
+      node.data.type ===
+      (TEALISH_NODE_TYPES.METHOD as
+        | "STATE_VARIABLE"
+        | "METHOD"
+        | "CONDITION"
+        | "LOOP"
+        | "OPERATION"
+        | "ASSET_TRANSFER"
+        | "CONTRACT_CALL"
+        | "PAYMENT"
+        | "CONFIGURATION")
   );
 
   methods.forEach((method) => {

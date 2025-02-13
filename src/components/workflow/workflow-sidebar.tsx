@@ -1,7 +1,6 @@
-import { Button } from "@/components/ui/button";
-import { nodeOptions } from "./tealish-nodes";
-import { useCallback, useState } from "react";
 import { ChevronRight } from "lucide-react";
+import { useCallback, useState } from "react";
+import { nodeOptions } from "./tealish-nodes";
 
 export function WorkflowSidebar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
