@@ -20,7 +20,7 @@ function RouteComponent() {
           justifyContent: "center",
           margin: "auto",
         }}
-        className="z-50 flex max-w-md max-h-96"
+        className="z-50 flex max-w-md max-h-28"
       >
         <Callout.Icon>
           <IconButton color="blue" variant="ghost" radius="full">
